@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Project0 - POC of Jenkins CI using Docker enabled AWS EC2 environment. : Jenkins, Docker, EC2">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Project0 - POC of Jenkins CI using Docker enabled AWS EC2 environment.</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/YusiZhang/Project0">View on GitHub</a>
+
+          <h1 id="project_title">Project0 - POC of Jenkins CI using Docker enabled AWS EC2 environment.</h1>
+          <h2 id="project_tagline">Jenkins, Docker, EC2</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/YusiZhang/Project0/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/YusiZhang/Project0/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a id="project0" class="anchor" href="#project0" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Project0</h1>
+
+<p><strong>This is designed to be a POC(proof of concept) of Jenkins CI using Docker enabled AWS EC2 environment.</strong></p>
+
+<p>1.Sign up two EC2 instances on AWS, as one Master Node and one Slave Node for Jenkins. Also make sure you open an inbound port for your security group. I open 8080 for Jenkins.</p>
+
+<p>2.Install Docker and Git on two instances.</p>
+
+<pre><code>[ec2-user ~]$ sudo yum update -y
+[ec2-user ~]$ sudo yum install -y docker
+[ec2-user ~]$ sudo service docker start
+# Add the ec2-user to the docker group so you can execute Docker commands without using sudo.
+[ec2-user ~]$ sudo usermod -a -G docker ec2-user
+# Install git.
+[ec2-user ~]$ sudo yum install git -y
+</code></pre>
+
+<p>3.Install and run Jenkins from a Docker image.</p>
+
+<pre><code>##Pull the official jenkins image from Docker repository.
+[ec2-user ~] docker pull jenkins
+##Run a container using this image and map data directory from the container to the host. You can make that a persistent volume.
+[ec2-user ~]docker run -p 8080:8080 -v /home/ec2-user/jenkins_home:/var/jenkins_home jenkins
+</code></pre>
+
+<p>Visit your jenkins home page http://:8080/
+e.g. <a href="http://54.191.4.24:8080/">http://54.191.4.24:8080/</a></p>
+
+<p>Remember to modify the security rules. Register an account. Then disable sign up. So only you have the access to modify Jenkins configuration.</p>
+
+<p>4.Set up master and slave machines
+<strong>There is no need to install Jenkins on the slave machine.</strong></p>
+
+<ul>
+<li>On your jenkins homepage go to <em>Manage Jenkins</em> --&gt; <em>Manage Node</em>
+</li>
+<li>
+<em>New Node</em> --&gt; <em>Enter Node Name</em> Name it as "Slave"</li>
+<li>Select Dumb Slave --&gt; Press <em>OK</em>
+</li>
+<li>Set file system root "/home/ec2/jenkins_home" for example.</li>
+<li>Select <em>Usage</em> for <em>Utilize this slave as much as possible</em>
+</li>
+<li>
+<em>Launch Method</em> select <em>Launch slave agents on Unix machines via SSH". Type in slave public ip as the *Host</em>. Add the ec2-user private key as login credentials.</li>
+<li>
+<em>Availability</em>: <em>Keep this slave online as much as possible</em>
+</li>
+<li>Press OK</li>
+</ul>
+
+<p>5.Install GitHub plugin on Jenkins.
+"Manage Jenkins" --&gt; "Manage Plugins" --&gt; search for "Github Plugin"
+Install it and restart the Jenkins.</p>
+
+<p>6.Configure GitHub webhook.
+Add "http://:8080/github-webhook/" to webhook service in your GitHub repository setting.</p>
+
+<p>7.Test by manually build a job. Or make a push to the GitHub repository.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Project0 - POC of Jenkins CI using Docker enabled AWS EC2 environment. maintained by <a href="https://github.com/YusiZhang">YusiZhang</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
